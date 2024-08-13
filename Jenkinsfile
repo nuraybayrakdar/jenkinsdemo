@@ -16,7 +16,7 @@ pipeline {
             steps {
                 script {
                     snykSecurity(
-                        snykInstallation: 'Snyk',
+                        snykInstallation: 'synk@latest',
                         snykTokenId: 'SNYK_TOKEN',
                         
                     )
