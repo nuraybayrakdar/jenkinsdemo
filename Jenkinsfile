@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub_id'  
         REPO_NAME = 'nuraybayrakdar/repo1' 
-        SNYK_TOKEN = credentials('SNYK_TOKEN')
     }
 
     stages {
@@ -16,9 +15,12 @@ pipeline {
         stage('Synk Code Scanning'){
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-                        sh 'snyk test --all-projects'
-                    }
+                    snykSecurity(
+                        snykInstallation: 'Snyk',
+                        snykTokenId: 'SNYK_TOKEN',
+                        
+                    )
+                
 
                 }
             }
