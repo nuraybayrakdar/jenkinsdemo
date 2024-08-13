@@ -33,6 +33,25 @@ pipeline {
                 }
             }
         }
+        stage('Docker Image Scan Trviy'){
+            steps {
+                script{
+                    def trivyOutput = sh(script: "trivy image $REPO_NAME:latest", returnStdout: true).trim()
+
+                    println trivyOutput
+
+                    if (trivyOutput.contains("CRITICAL") || trivyOutput.contains("HIGH")) {
+                        error("Trivy found vulnerabilities")
+                    } else {
+                        echo "No vulnerabilities found"
+                    }
+                }
+                
+            }
+        }
+
+
+    
         
         stage('Docker Image Push') {
             steps {
