@@ -33,28 +33,25 @@ pipeline {
                 }
             }
         }
-        stage('Docker Image Scan Trviy'){
+        stage('Docker Image Scan Trivy') {
             steps {
-                script{
-                    def trivyOutput = sh(script: "trivy image $REPO_NAME:latest", returnStdout: true).trim()
+                script {
+                    try {
+                        def trivyOutput = sh(script: "trivy image ${REPO_NAME}:${BUILD_NUMBER}", returnStdout: true).trim()
 
-                    println trivyOutput
+                        println trivyOutput
 
-                     if (trivyOutput.contains("CRITICAL") || trivyOutput.contains("HIGH")) {
+                        if (trivyOutput.contains("CRITICAL") || trivyOutput.contains("HIGH")) {
                             echo "Trivy found vulnerabilities but continuing the build."
-                          
-                            
-
+                            // Optionally, you can also add a warning or report here.
                         } else {
                             echo "No vulnerabilities found"
                         }
                     } catch (Exception e) {
                         echo "Trivy scan failed: ${e.message}"
-                        
-
+                        // Continue the pipeline even if there is an error in the Trivy scan.
                     }
                 }
-                
             }
         }
 
