@@ -16,7 +16,7 @@ pipeline {
         stage('Synk Code Scanning'){
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'synkid', variable: 'SNYk_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'synkid', variable: 'SNYK_TOKEN')]) {
                         sh 'snyk auth $SNYK_TOKEN'
                         sh 'snyk test --all-projects'
                     }
