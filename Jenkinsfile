@@ -23,7 +23,7 @@ pipeline {
         stage('Docker Image Push') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', docker-id) {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
                         docker.image("nuraybayrakdar/repo1:${BUILD_NUMBER}").push('latest')
                     }
                 }
