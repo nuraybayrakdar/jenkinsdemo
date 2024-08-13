@@ -3,7 +3,8 @@ pipeline {
     
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub_id'  
-        REPO_NAME = 'nuraybayrakdar/repo1'     
+        REPO_NAME = 'nuraybayrakdar/repo1' 
+        SNYK_TOKEN = credentials('synkid')    
     }
 
     stages {
@@ -12,7 +13,14 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/nuraybayrakdar/website.git', credentialsId: 'GitHub-id'
             }
         }
-        
+        stage('Synk Code Scanning'){
+            steps {
+                script {
+                    sh 'snyk test --all-projects'
+                }
+            }
+        }
+
         stage('Docker Image Build') {
             steps {
                 script {
