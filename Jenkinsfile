@@ -1,9 +1,9 @@
 pipeline {
     agent any
     
-    enviroment{
-        DOCKER_CREDENTIALS_ID = 'docker-id'
-        REPO_NAME = 'nuraybayrakdar/repo1'
+    environment {
+        DOCKER_CREDENTIALS_ID = 'dockerhub-id'  
+        REPO_NAME = 'nuraybayrakdar/repo1'     
     }
 
     stages {
@@ -12,10 +12,11 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/nuraybayrakdar/website.git', credentialsId: 'GitHub-id'
             }
         }
+        
         stage('Docker Image Build') {
             steps {
-               script {
-                    docker.build("nuraybayrakdar/repo1:${BUILD_NUMBER}")
+                script {
+                    docker.build("${REPO_NAME}:${BUILD_NUMBER}")
                 }
             }
         }
@@ -24,7 +25,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        docker.image("nuraybayrakdar/repo1:${BUILD_NUMBER}").push('latest')
+                        docker.image("${REPO_NAME}:${BUILD_NUMBER}").push('latest')
                     }
                 }
             }
