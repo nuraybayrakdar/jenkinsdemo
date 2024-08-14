@@ -1,9 +1,12 @@
 pipeline {
     agent any
-    
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub_id'  
         REPO_NAME = 'nuraybayrakdar/repo1' 
+        registeryName = 'aksnew'
+        registryCredential = 'ACR'
+        registiryUrl = 'crnew.azurecr.io'
+        dockerImage = ''
     }
 
     stages {
@@ -17,11 +20,8 @@ pipeline {
                 script {
                     snykSecurity(
                         snykInstallation: 'synk@latest',
-                        snykTokenId: 'SNYK_TOKEN',
-                        
+                        snykTokenId: 'SNYK_TOKEN',   
                     )
-                
-
                 }
             }
         }
@@ -43,27 +43,49 @@ pipeline {
 
                         if (trivyOutput.contains("CRITICAL") || trivyOutput.contains("HIGH")) {
                             echo "Trivy found vulnerabilities but continuing the build."
-                            // Optionally, you can also add a warning or report here.
                         } else {
                             echo "No vulnerabilities found"
                         }
                     } catch (Exception e) {
                         echo "Trivy scan failed: ${e.message}"
-                        // Continue the pipeline even if there is an error in the Trivy scan.
                     }
                 }
             }
         }
-
-
-    
-        
         stage('Docker Image Push') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
                         docker.image("${REPO_NAME}:${BUILD_NUMBER}").push('latest')
                     }
+                }
+            }
+        }
+        stage('Upload Image To ACR'){
+            steps {
+                script {
+                    dockerImage = "${REPO_NAME}:${BUILD_NUMBER}"
+                    docker.withRegistry(registiryUrl, registryCredential) {
+                        docker.image(dockerImage).push('latest')
+                    }
+                }
+            }
+        }
+        stage('Deploy K8S') {
+            steps {
+                script {
+                    withKubeConfig([credentialsId: 'K8S', serverUrl: 'aksnew-dns-ogavmv7o.hcp.norwayeast.azmk8s.io']) {
+                        sh 'kubectl set image deployment/website-deployment website-container=${dockerImage}'
+                        sh 'kubectl apply -f deployment.yaml'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'kubectl apply -f deployment.yaml'
                 }
             }
         }
