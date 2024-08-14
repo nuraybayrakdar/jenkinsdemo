@@ -66,7 +66,7 @@ pipeline {
             steps {
                 script {
                     dockerImage = "${REPO_NAME}:${BUILD_NUMBER}"
-                    docker.withRegistry(registiryUrl, registryCredential) {
+                    docker.withRegistry(registryUrl, registryCredential) {
                         docker.image(dockerImage).push('latest')
                     }
                 }
