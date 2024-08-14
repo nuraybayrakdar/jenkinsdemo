@@ -5,8 +5,9 @@ pipeline {
         REPO_NAME = 'nuraybayrakdar/repo1' 
         registeryName = 'aksnew'
         registryCredential = 'ACR'
-        registiryUrl = 'crnew.azurecr.io'
+        registryUrl = 'https://crnew.azurecr.io'
         dockerImage = ''
+        KUBE_URL = 'https://aksnew-dns-ogavmv7o.hcp.norwayeast.azmk8s.io'
     }
 
     stages {
@@ -74,7 +75,7 @@ pipeline {
         stage('Deploy K8S') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: 'K8S', serverUrl: 'aksnew-dns-ogavmv7o.hcp.norwayeast.azmk8s.io']) {
+                    withKubeConfig([credentialsId: 'K8S', serverUrl: KUBE_URL]) {
                         sh 'kubectl set image deployment/website-deployment website-container=${dockerImage}'
                         sh 'kubectl apply -f deployment.yaml'
                     }
