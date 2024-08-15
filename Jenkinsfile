@@ -80,12 +80,9 @@ pipeline {
         stage('Deploy K8S') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: K8S_ID, variable: 'KUBECONFIG')]) {
-                        sh 'echo "Using kubeconfig from $KUBECONFIG"'
-                        sh 'cat $KUBECONFIG'
+                    withCredentials([file(credentialsId: K8S_ID, variable: 'KUBECONFIG')]) {              
                         sh 'kubectl config view --minify'
                         sh 'kubectl cluster-info'
-                        sh 'kubectl set image deployment/website-deployment website-container=${dockerImage}' 
                         sh 'kubectl apply -f deployment.yaml'
                     }
                 }
