@@ -77,13 +77,14 @@ pipeline {
         stage('Deploy K8S') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: 'K8S', serverUrl: 'https://aksnew-dns-ogavmv7o.hcp.norwayeast.azmk8s.io' ]) {
-                        echo "debug"
-                        sh 'kubectl set image deployment/website-deployment website-container=${dockerImage}'
-                        sh 'kubectl apply -f deployment.yaml'
+                    kubernetesDeploy(
+                        configs: 'deployment.yaml',
+                        kubeconfigId: 'K8S',
+                        enableConfigSubstitution: true 
+                        )
                     }
-                }
             }
+       
         }
 
     }   
