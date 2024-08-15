@@ -32,9 +32,7 @@ pipeline {
             steps {
                 script {
                     docker.build("${REPO_NAME}:${BUILD_NUMBER}")
-                    // Define the imageTag variable
-                    def imageTag = "${REPO_NAME}:${BUILD_NUMBER}"
-                    env.dockerImage = imageTag
+                    dockerImage = "${REPO_NAME}:${BUILD_NUMBER}"
                 }
             }
         }
@@ -42,7 +40,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        def trivyOutput = sh(script: "trivy image ${env.dockerImage}", returnStdout: true).trim()
+                        def trivyOutput = sh(script: "trivy image ${dockerImage}", returnStdout: true).trim()
                         println trivyOutput
                         if (trivyOutput.contains("CRITICAL") || trivyOutput.contains("HIGH")) {
                             echo "Trivy found vulnerabilities but continuing the build."
@@ -59,24 +57,16 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        docker.image("${env.dockerImage}").push('latest')
+                        docker.image("${dockerImage}").push('latest')
                     }
-                }
-            }
-        }
-        stage('Upload Image To ACR') {
-            steps {
-                script {
-                    docker.withRegistry(registryUrl, registryCredential) {
-                        docker.image(env.dockerImage).push('latest')
-                    }
+                    dockerImage = "${REPO_NAME}:${BUILD_NUMBER}"
                 }
             }
         }
         stage('Update Deployment YAML') {
             steps {
                 script {
-                    sh "sed -i 's|<image_placeholder>|${env.dockerImage}|g' deployment.yaml"
+                    sh "sed -i 's|<image_placeholder>|${dockerImage}|g' deployment.yaml"
                 }
             }
         }
