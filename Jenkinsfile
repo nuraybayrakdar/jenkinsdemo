@@ -36,6 +36,11 @@ pipeline {
                 }
             }
         }
+        stage ('Verify Files') {
+            steps {
+                sh 'ls -l'
+            }
+        }
         stage('Docker Image Scan Trivy') {
             steps {
                 script {
