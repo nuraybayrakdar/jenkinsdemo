@@ -75,17 +75,20 @@ pipeline {
                 }
             }
         }
+    
+
         stage('Deploy K8S') {
             steps {
                 script {
-                    sh "echo ${K8S_ID}"
-                        withKubeConfig([credentialsId: K8S_ID, serverUrl: 'https://aksnew-dns-ogavmv7o.hcp.norwayeast.azmk8s.io' ]) {
-                            sh 'kubectl set image deployment/website-deployment website-container=${dockerImage}' 
-                            sh 'kubectl apply -f deployment.yaml'
-                        }
+                    withCredentials([file(credentialsId: K8S_ID, variable: 'KUBECONFIG')]) {
+                        sh 'echo "Using kubeconfig from $KUBECONFIG"'
+                        sh 'kubectl config view --minify'
+                        sh 'kubectl cluster-info'
+                        sh 'kubectl set image deployment/website-deployment website-container=${dockerImage}' 
+                        sh 'kubectl apply -f deployment.yaml'
                     }
+                }
             }
-       
         }
 
     }   
