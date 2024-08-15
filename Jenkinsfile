@@ -4,6 +4,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'dockerhub_id'  
         REPO_NAME = 'nuraybayrakdar/repo1'
         ACR_NAME = 'crnew' 
+        K8S_ID = 'K8S'
         registeryName = 'aksnew'
         registryCredential = 'ACR'
         registryUrl = 'https://crnew.azurecr.io'
@@ -77,6 +78,7 @@ pipeline {
         stage('Deploy K8S') {
             steps {
                 script {
+                    sh "echo ${K8S_ID}"
                     kubernetesDeploy(
                         configs: 'deployment.yaml',
                         kubeconfigId: 'K8S',
