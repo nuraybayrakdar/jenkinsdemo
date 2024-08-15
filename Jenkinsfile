@@ -2,7 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub_id'  
-        REPO_NAME = 'nuraybayrakdar/repo1' 
+        REPO_NAME = 'nuraybayrakdar/repo1'
+        ACR_NAME = 'crnew' 
         registeryName = 'aksnew'
         registryCredential = 'ACR'
         registryUrl = 'https://crnew.azurecr.io'
@@ -69,13 +70,14 @@ pipeline {
                     docker.withRegistry(registryUrl, registryCredential) {
                         docker.image(dockerImage).push('latest')
                     }
+                    
                 }
             }
         }
         stage('Deploy K8S') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: 'K8S', serverUrl: KUBE_URL]) {
+                    withKubeConfig([credentialsId: 'K8S', serverUrl: 'https://aksnew-dns-ogavmv7o.hcp.norwayeast.azmk8s.io' ]) {
                         sh 'kubectl set image deployment/website-deployment website-container=${dockerImage}'
                         sh 'kubectl apply -f deployment.yaml'
                     }
@@ -83,12 +85,5 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                script {
-                    sh 'kubectl apply -f deployment.yaml'
-                }
-            }
-        }
     }   
 }
