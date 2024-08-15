@@ -75,11 +75,7 @@ pipeline {
                 }
             }
         }
-        stage ('Verify Files') {
-            steps {
-                sh 'ls -l'
-            }
-        }
+
         stage('Deploy K8S') {
             steps {
                 script {
