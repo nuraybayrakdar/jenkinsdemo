@@ -12,6 +12,9 @@ pipeline {
         KUBE_URL = 'https://aksnew-dns-ogavmv7o.hcp.norwayeast.azmk8s.io'
     }
 
+    def imageTag = "${REPO_NAME}:${BUILD_NUMBER}"
+
+
     stages {
         stage('Checkout') {
             steps {
@@ -75,12 +78,21 @@ pipeline {
                 }
             }
         }
+
+        stage('Verify Files') {
+            steps {
+                script {
+                    sh 'ls -la'
+                }
+            }
+        }
     
 
         stage('Deploy K8S') {
             steps {
                 script {
                     withCredentials([file(credentialsId: K8S_ID, variable: 'KUBECONFIG')]) {              
+                        sh "sed -i 's/${REPO_NAME}:${BUILD_NUMBER}/${dockerImage}/g' deployment.yaml"
                         sh 'kubectl config view --minify'
                         sh 'kubectl cluster-info'
                         sh 'kubectl apply -f deployment.yaml'
